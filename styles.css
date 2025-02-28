@@ -1,0 +1,214 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base styling */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  color: #333;
+  transition: background 0.5s, color 0.5s;
+  padding: 20px;
+}
+
+.dark-theme {
+  background: linear-gradient(135deg, #1e2327, #2b3036);
+  color: #ddd;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transition: background 0.5s, box-shadow 0.5s;
+}
+
+.dark-theme .container {
+  background: rgba(40, 44, 52, 0.95);
+}
+
+/* Header */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.challenge-link a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+.challenge-link a:hover {
+  color: #0056b3;
+}
+
+/* Dark theme link color overrides */
+.dark-theme a {
+  color: #ff9b42; /* or another color with good contrast */
+}
+.dark-theme a:hover {
+  color: #ffbb70;
+}
+
+/* Tagline */
+.tagline {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.dark-theme .tagline {
+  color: #bbb;
+}
+
+/* Story image block */
+.story-image, #storyImageContainer {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.story-image img, #storyImageContainer img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  text-align: right;
+  margin-bottom: 15px;
+}
+button {
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Questionnaire form */
+form {
+  background: rgba(232, 240, 254, 0.95);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: background 0.5s;
+}
+
+.dark-theme form {
+  background: rgba(50, 50, 50, 0.9);
+}
+
+.question {
+  margin-bottom: 20px;
+}
+.question label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+.options.inline input[type="checkbox"] {
+  margin-right: 5px;
+  margin-left: 10px;
+}
+.options.inline label {
+  margin-right: 15px;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Results box */
+.result {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+.dark-theme .result {
+  background: #3c3c3c;
+  border-color: #555;
+}
+
+/* Differential Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+thead {
+  background-color: #007bff;
+  color: #fff;
+}
+thead tr th {
+  padding: 10px;
+  text-align: left;
+}
+tbody tr {
+  border-bottom: 1px solid #ccc;
+}
+tbody tr:last-child {
+  border-bottom: none;
+}
+tbody tr td {
+  padding: 10px;
+}
+
+/* Dark theme table overrides */
+.dark-theme thead {
+  background-color: #444;
+}
+.dark-theme thead tr th {
+  color: #ff9b42;
+}
+.dark-theme tbody tr {
+  border-bottom: 1px solid #555;
+}
+.dark-theme tbody tr td {
+  color: #ddd;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 30px;
+}
+.dark-theme footer {
+  color: #aaa;
+}
+
+/* Floating Balls & Diagnosis Boxes are in challenge.html style block */
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+  .header-top h1 {
+    font-size: 1.5em;
+  }
+  button {
+    width: 100%;
+    margin-top: 10px;
+  }
+}

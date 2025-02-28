@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statistics & Interactive Tools</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      color: #333;
+      padding: 20px;
+      transition: background 0.5s, color 0.5s;
+    }
+    .dark-theme {
+      background: linear-gradient(135deg, #1e2327, #2b3036);
+      color: #eee;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      transition: background 0.5s, box-shadow 0.5s;
+    }
+    .dark-theme .container {
+      background: rgba(40, 44, 52, 0.95);
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Theme toggle button */
+    .toggle-theme {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    button:focus {
+      outline: 2px solid #007bff;
+    }
+
+    /* Chart container (Line Chart) */
+    #chartContainer {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      margin-bottom: 40px;
+    }
+
+    /* Checkboxes for toggling series (Line Chart) */
+    .series-toggles {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .series-toggles span {
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .series-toggles label {
+      margin-left: 5px;
+      font-weight: bold;
+    }
+
+    /* Info / references */
+    .info-section {
+      margin-top: 30px;
+    }
+    .info-section h3 {
+      margin-bottom: 10px;
+    }
+    .info-section ul {
+      list-style: inside disc;
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    /* Hyperlink styling for dark/light mode */
+    a {
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s;
+      font-weight: 600;
+    }
+    a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+    .dark-theme a {
+      color: #ff9b42;
+    }
+    .dark-theme a:hover {
+      color: #ffbb70;
+    }
+
+    /* Bubble Chart Container */
+    .diet-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+    #dietChartContainer {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      margin-bottom: 20px;
+    }
+
+    /* Reversal / Management Section */
+    .reversal-section {
+      margin-top: 40px;
+    }
+    .reversal-section p {
+      margin-bottom: 15px;
+    }
+
+    /* Bubble chart detail panel */
+    #foodDetailPanel {
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 10px;
+      display: none;
+      transition: background 0.5s;
+    }
+    .dark-theme #foodDetailPanel {
+      background: #555;
+      color: #fff;
+    }
+    #foodDetailPanel h4 {
+      margin-bottom: 10px;
+    }
+    #foodDetailPanel p {
+      margin-bottom: 5px;
+    }
+
+    /* Region Filter */
+    .region-filter {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .region-filter label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .region-filter select {
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+    .dark-theme .region-filter select {
+      background: #444;
+      color: #fff;
+      border: 1px solid #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Dark theme toggle -->
+    <div class="toggle-theme">
+      <button id="themeToggle">Toggle Dark Theme</button>
+    </div>
+
+    <h1>Additional Statistics &amp; Interactive Tools</h1>
+    <p style="text-align:center;">
+      Below is a snapshot of approximate data for each condition (for demonstration).  
+      Use the checkboxes to toggle lines on the chart.  
+      Scroll down for recommended diets with color-coded foods (Good, OK, Bad).  
+      Click a bubble to see healthy replacements or suggestions!  
+      Filter by cuisine/region if you’d like to focus on a specific category.
+    </p>
+
+    <!-- Original Chart & Toggles (Line Chart) -->
+    <div class="series-toggles">
+      <span>
+        <input type="checkbox" id="hashimotoToggle" checked>
+        <label for="hashimotoToggle">Hashimoto’s</label>
+      </span>
+      <span>
+        <input type="checkbox" id="b12Toggle" checked>
+        <label for="b12Toggle">B12 Deficiency</label>
+      </span>
+      <span>
+        <input type="checkbox" id="ironToggle" checked>
+        <label for="ironToggle">Iron Deficiency</label>
+      </span>
+      <span>
+        <input type="checkbox" id="hypotensionToggle" checked>
+        <label for="hypotensionToggle">Hypotension</label>
+      </span>
+      <span>
+        <input type="checkbox" id="hypoglycemiaToggle" checked>
+        <label for="hypoglycemiaToggle">Hypoglycemia</label>
+      </span>
+    </div>
+
+    <div id="chartContainer">
+      <canvas id="myChart"></canvas>
+    </div>
+
+    <!-- New Diet Section: Bubble Chart with Foods -->
+    <div class="diet-section">
+      <h2>Recommended Diets &amp; Foods</h2>
+      <p>
+        We’ve mapped Indian (South &amp; North), Italian, Thai, and fusion dishes across times of day (1=Breakfast, 2=Mid-morning, 3=Lunch, 4=Afternoon, 5=Dinner, 6=Late night).  
+        Click on a bubble to see healthy replacements.  
+      </p>
+
+      <!-- Region Filter -->
+      <div class="region-filter">
+        <label for="regionSelect">Filter by Region:</label>
+        <select id="regionSelect">
+          <option value="All">All</option>
+          <option value="South Indian">South Indian</option>
+          <option value="North Indian">North Indian</option>
+          <option value="Italian">Italian</option>
+          <option value="Thai">Thai</option>
+        </select>
+      </div>
+
+      <div id="dietChartContainer">
+        <canvas id="dietChart"></canvas>
+      </div>
+
+      <!-- Panel to show food details & healthy replacements -->
+      <div id="foodDetailPanel">
+        <h4 id="foodTitle"></h4>
+        <p id="foodRating"></p>
+        <p id="foodReplacement"></p>
+      </div>
+    </div>
+
+    <!-- Reversal / Management Advice -->
+    <div class="reversal-section" id="reversalSection">
+      <h2>Reversal or Management Advice</h2>
+      <p id="reversalContent"></p>
+    </div>
+
+    <div class="info-section">
+      <h3>References &amp; Additional Information</h3>
+      <ul>
+        <li><a href="https://www.mayoclinic.org/">Mayo Clinic</a></li>
+        <li><a href="https://www.niddk.nih.gov/">NIDDK</a></li>
+        <li><a href="https://www.endocrine.org/">The Endocrine Society</a></li>
+      </ul>
+      <p>
+        <strong>Disclaimer:</strong> The data shown here are approximate and for demonstration only.
+        Always consult a qualified healthcare provider for personalized information.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Dark theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+    });
+
+    /* =========================
+       1) LINE CHART SETUP
+       ========================= */
+    const ctx = document.getElementById('myChart').getContext('2d');
+
+    // Example data arrays (for demonstration)
+    let dataHashimoto = [40, 45, 60, 70];
+    let dataB12 = [20, 25, 35, 50];
+    let dataIron = [30, 40, 45, 55];
+    let dataHypotension = [15, 20, 30, 35];
+    let dataHypoglycemia = [25, 30, 40, 60];
+
+    // Example x-axis labels
+    let labels = ["Mild", "Moderate", "Moderately Severe", "Severe"];
+
+    const myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Hashimoto’s",
+            data: dataHashimoto,
+            borderColor: "rgba(255, 99, 132, 1)",
+            backgroundColor: "rgba(255, 99, 132, 0.2)",
+            fill: true
+          },
+          {
+            label: "B12 Deficiency",
+            data: dataB12,
+            borderColor: "rgba(54, 162, 235, 1)",
+            backgroundColor: "rgba(54, 162, 235, 0.2)",
+            fill: true
+          },
+          {
+            label: "Iron Deficiency",
+            data: dataIron,
+            borderColor: "rgba(255, 206, 86, 1)",
+            backgroundColor: "rgba(255, 206, 86, 0.2)",
+            fill: true
+          },
+          {
+            label: "Hypotension",
+            data: dataHypotension,
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            fill: true
+          },
+          {
+            label: "Hypoglycemia",
+            data: dataHypoglycemia,
+            borderColor: "rgba(153, 102, 255, 1)",
+            backgroundColor: "rgba(153, 102, 255, 0.2)",
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Severity / Index'
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.parsed.y}`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Toggle dataset visibility
+    document.getElementById('hashimotoToggle').addEventListener('change', function() {
+      myChart.data.datasets[0].hidden = !this.checked;
+      myChart.update();
+    });
+    document.getElementById('b12Toggle').addEventListener('change', function() {
+      myChart.data.datasets[1].hidden = !this.checked;
+      myChart.update();
+    });
+    document.getElementById('ironToggle').addEventListener('change', function() {
+      myChart.data.datasets[2].hidden = !this.checked;
+      myChart.update();
+    });
+    document.getElementById('hypotensionToggle').addEventListener('change', function() {
+      myChart.data.datasets[3].hidden = !this.checked;
+      myChart.update();
+    });
+    document.getElementById('hypoglycemiaToggle').addEventListener('change', function() {
+      myChart.data.datasets[4].hidden = !this.checked;
+      myChart.update();
+    });
+
+
+    /* =========================
+       2) BUBBLE CHART FOR DIET
+       ========================= */
+
+    // We'll store 3 arrays: goodFoodsAll, okFoodsAll, badFoodsAll
+    // Each item: { x, y, r, label, replacement, region }
+
+    // GOOD FOODS (existing + 10 more)
+    const goodFoodsAll = [
+      // Existing
+      { x: 1, y: 1, r: 10, label: "Idli & Sambar", replacement: "Already healthy; add veggies", region: "South Indian" },
+      { x: 3, y: 1, r: 10, label: "Ragi Dosa with Chutney", replacement: "Ragi is high in calcium", region: "South Indian" },
+      { x: 5, y: 1, r: 10, label: "Grilled Salmon (Thai style)", replacement: "Add a side salad", region: "Thai" },
+      { x: 3, y: 2, r: 10, label: "Chapati & Dal", replacement: "Add leafy sabzi", region: "North Indian" },
+      { x: 5, y: 2, r: 10, label: "Whole Wheat Pasta (Red Sauce)", replacement: "Extra veggies, limit cheese", region: "Italian" },
+
+      // 10 NEW Good Foods
+      { x: 1, y: 3, r: 10, label: "Pesarattu (Moong Dal Dosa)", replacement: "Serve with tomato chutney", region: "South Indian" },
+      { x: 2, y: 2, r: 10, label: "Fruit Salad with Yogurt", replacement: "Use Greek yogurt for protein", region: "South Indian" },
+      { x: 3, y: 2, r: 10, label: "Tandoori Chicken", replacement: "Avoid butter naan, use roti", region: "North Indian" },
+      { x: 4, y: 3, r: 10, label: "Kadhi & Brown Rice", replacement: "Add vegetables to kadhi", region: "North Indian" },
+      { x: 5, y: 1, r: 10, label: "Methi Thepla & Curd", replacement: "Include cucumber salad", region: "North Indian" },
+      { x: 3, y: 3, r: 10, label: "Rajma Chawal (light oil)", replacement: "Use brown rice for fiber", region: "North Indian" },
+      { x: 2, y: 3, r: 10, label: "Upma with Veggies", replacement: "Reduce oil, add carrots/beans", region: "South Indian" },
+      { x: 4, y: 2, r: 10, label: "Minestrone Soup", replacement: "Use whole-grain pasta", region: "Italian" },
+      { x: 5, y: 2, r: 10, label: "Grilled Fish in Lemon Sauce", replacement: "Serve with steamed veggies", region: "Thai" },
+      { x: 6, y: 2, r: 10, label: "Paneer Bhurji (low oil)", replacement: "Add spinach, use minimal ghee", region: "North Indian" }
+    ];
+
+    // OK FOODS (existing + 10 more)
+    const okFoodsAll = [
+      // Existing
+      { x: 2, y: 2, r: 8, label: "Masala Tea (moderate sugar)", replacement: "Try jaggery or less sugar", region: "South Indian" },
+      { x: 4, y: 2, r: 8, label: "Pad Thai", replacement: "Less oil, more veggies", region: "Thai" },
+      { x: 3, y: 3, r: 8, label: "Paneer Tikka", replacement: "Grill or bake instead of frying", region: "North Indian" },
+      { x: 1, y: 3, r: 8, label: "Upma", replacement: "Add more veggies, reduce oil", region: "South Indian" },
+      { x: 4, y: 3, r: 8, label: "Margherita Pizza (thin crust)", replacement: "Limit cheese, add veggies", region: "Italian" },
+
+      // 10 NEW OK Foods
+      { x: 2, y: 1, r: 8, label: "Plain Dosa with minimal oil", replacement: "Opt for sambar, skip coconut chutney", region: "South Indian" },
+      { x: 3, y: 2, r: 8, label: "Aloo Paratha (light oil)", replacement: "Use less butter, add curd", region: "North Indian" },
+      { x: 4, y: 3, r: 8, label: "Veg Hakka Noodles", replacement: "Go easy on sauce, add protein", region: "Thai" },
+      { x: 5, y: 2, r: 8, label: "Chicken Stew with Rice", replacement: "Use brown rice, reduce cream", region: "South Indian" },
+      { x: 6, y: 3, r: 8, label: "Pasta Alfredo (light sauce)", replacement: "Use low-fat milk, add veggies", region: "Italian" },
+      { x: 2, y: 3, r: 8, label: "Sabudana Khichdi", replacement: "Less peanuts, more veggies", region: "North Indian" },
+      { x: 1, y: 2, r: 8, label: "Medu Vada (baked version)", replacement: "Limit portion, pair with sambar", region: "South Indian" },
+      { x: 4, y: 1, r: 8, label: "Pav Bhaji (less butter)", replacement: "Use whole wheat pav, more veggies", region: "North Indian" },
+      { x: 5, y: 3, r: 8, label: "Egg Curry & Rice", replacement: "Boil eggs instead of frying", region: "North Indian" },
+      { x: 6, y: 1, r: 8, label: "Roasted Veg Sandwich", replacement: "Whole wheat bread, minimal mayo", region: "Italian" }
+    ];
+
+    // BAD FOODS (existing + 10 more)
+    const badFoodsAll = [
+      // Existing
+      { x: 3, y: 4, r: 10, label: "Chole Bhature (Deep-Fried)", replacement: "Try baked bhature or chapati", region: "North Indian" },
+      { x: 4, y: 4, r: 10, label: "Samosas & Jalebis", replacement: "Baked samosas, fruit dessert", region: "North Indian" },
+      { x: 6, y: 4, r: 10, label: "Late Night Ice Cream", replacement: "Frozen yogurt or sorbet", region: "Italian" },
+      { x: 5, y: 4, r: 10, label: "Chicken 65 (deep-fried)", replacement: "Opt for grilled chicken", region: "South Indian" },
+      { x: 2, y: 4, r: 10, label: "Creamy White Sauce Pasta", replacement: "Use low-fat milk or tomato sauce", region: "Italian" },
+
+      // 10 NEW Bad Foods
+      { x: 1, y: 4, r: 10, label: "Poori & Potato Masala (fried)", replacement: "Use chapati or phulka instead", region: "South Indian" },
+      { x: 3, y: 4, r: 10, label: "Malai Kofta (heavy cream)", replacement: "Try kofta in tomato-based gravy", region: "North Indian" },
+      { x: 4, y: 4, r: 10, label: "Vada Pav (deep-fried vada)", replacement: "Bake vada, limit chutney", region: "North Indian" },
+      { x: 5, y: 4, r: 10, label: "Butter Chicken with Cream", replacement: "Use low-fat milk, less butter", region: "North Indian" },
+      { x: 6, y: 4, r: 10, label: "Gulab Jamun", replacement: "Try rasgulla or fruit salad", region: "North Indian" },
+      { x: 2, y: 4, r: 10, label: "Mysore Bondas", replacement: "Use baked bonda or upma", region: "South Indian" },
+      { x: 1, y: 4, r: 10, label: "Pakoras / Bhajji (deep-fried)", replacement: "Air-fry or bake them", region: "North Indian" },
+      { x: 3, y: 4, r: 10, label: "Pulao with Excess Ghee", replacement: "Use minimal ghee, add veggies", region: "North Indian" },
+      { x: 4, y: 4, r: 10, label: "Carbonara Pasta (bacon, cream)", replacement: "Use turkey bacon or skip cream", region: "Italian" },
+      { x: 5, y: 4, r: 10, label: "Deep-fried Fish Pakora", replacement: "Grill or bake fish", region: "South Indian" }
+    ];
+
+    // We'll render these as 3 separate datasets so the Chart.js legend toggles them
+    let goodFoods = JSON.parse(JSON.stringify(goodFoodsAll));
+    let okFoods = JSON.parse(JSON.stringify(okFoodsAll));
+    let badFoods = JSON.parse(JSON.stringify(badFoodsAll));
+
+    let dietCtx = document.getElementById('dietChart').getContext('2d');
+    let dietChart;
+
+    function renderBubbleChart() {
+      // Build datasets from the current goodFoods, okFoods, badFoods arrays
+      const bubbleDatasets = [
+        {
+          label: "Good Foods",
+          data: goodFoods,
+          backgroundColor: "rgba(46, 204, 113, 0.6)", // green
+          borderColor: "rgba(39, 174, 96, 1)"
+        },
+        {
+          label: "OK Foods",
+          data: okFoods,
+          backgroundColor: "rgba(241, 196, 15, 0.6)", // orange
+          borderColor: "rgba(243, 156, 18, 1)"
+        },
+        {
+          label: "Bad Foods",
+          data: badFoods,
+          backgroundColor: "rgba(231, 76, 60, 0.6)", // red
+          borderColor: "rgba(192, 57, 43, 1)"
+        }
+      ];
+
+      if (dietChart) {
+        dietChart.destroy();
+      }
+
+      dietChart = new Chart(dietCtx, {
+        type: 'bubble',
+        data: {
+          datasets: bubbleDatasets
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true // Clicking the legend toggles dataset visibility
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let item = context.raw;
+                  return `${item.label}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Time of Day (1=Breakfast, 2=Mid-morning, 3=Lunch, 4=Afternoon, 5=Dinner, 6=Late night)"
+              },
+              min: 0,
+              max: 7,
+              ticks: {
+                stepSize: 1
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Visual Spread (no real scale)"
+              },
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          },
+          animation: {
+            duration: 1500,
+            easing: 'easeOutBounce'
+          },
+          onClick: (evt, elements) => {
+            if (elements.length > 0) {
+              let element = elements[0];
+              let datasetIndex = element.datasetIndex;
+              let dataIndex = element.index;
+              let clickedItem = dietChart.data.datasets[datasetIndex].data[dataIndex];
+              showFoodDetail(clickedItem, dietChart.data.datasets[datasetIndex].label);
+            }
+          }
+        }
+      });
+    }
+
+    // Show details in a panel below the chart
+    const foodDetailPanel = document.getElementById('foodDetailPanel');
+    const foodTitle = document.getElementById('foodTitle');
+    const foodRating = document.getElementById('foodRating');
+    const foodReplacement = document.getElementById('foodReplacement');
+
+    function showFoodDetail(item, category) {
+      foodTitle.textContent = item.label;
+      foodRating.textContent = `Category: ${category} (Region: ${item.region})`;
+      foodReplacement.textContent = `Suggested Improvement: ${item.replacement}`;
+      foodDetailPanel.style.display = 'block';
+    }
+
+    // Filter by region
+    const regionSelect = document.getElementById('regionSelect');
+    regionSelect.addEventListener('change', applyRegionFilter);
+
+    function applyRegionFilter() {
+      const selected = regionSelect.value; // "All", "South Indian", etc.
+
+      // Filter each array in place
+      goodFoods = goodFoodsAll.filter(item => (selected === "All" ? true : item.region === selected));
+      okFoods = okFoodsAll.filter(item => (selected === "All" ? true : item.region === selected));
+      badFoods = badFoodsAll.filter(item => (selected === "All" ? true : item.region === selected));
+
+      // Re-render chart
+      renderBubbleChart();
+    }
+
+    // Initial render
+    renderBubbleChart();
+
+    /* =======================================
+       3) REVERSAL / MANAGEMENT ADVICE
+       ======================================= */
+    const reversalContent = document.getElementById('reversalContent');
+
+    // Customize for your personal situation
+    reversalContent.innerHTML = `
+      <strong>Hashimoto’s Thyroiditis:</strong> Generally not fully reversible, but well-managed with thyroid hormone replacement. 
+      Lifelong monitoring may be needed.<br/><br/>
+      <strong>Vitamin B12 Deficiency:</strong> Often reversible through dietary changes or supplementation. 
+      Check absorption issues (pernicious anemia).<br/><br/>
+      <strong>Iron Deficiency:</strong> Potentially reversible by identifying and addressing underlying causes (e.g., dietary, menstrual, GI losses). 
+      Iron supplementation and diet adjustments help.<br/><br/>
+      <strong>Low Blood Pressure (Hypotension):</strong> May improve with increased salt/fluid intake, compression stockings, or addressing root causes. 
+      Not always 'reversible' but can be controlled.<br/><br/>
+      <strong>Hypoglycemia:</strong> Often manageable/reversible through meal timing, balanced macros, and identifying triggers. 
+      In some cases, addressing insulin issues is key.<br/><br/>
+      <em>For personalized guidance, always consult a qualified healthcare professional.</em>
+    `;
+  </script>
+</body>
+</html>

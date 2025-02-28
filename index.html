@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced Symptom Diagnostic Tool</title>
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Base styling */
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      color: #333;
+      transition: background 0.5s, color 0.5s;
+      padding: 20px;
+    }
+    .dark-theme {
+      background: linear-gradient(135deg, #1e2327, #2b3036);
+      color: #eee;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      transition: background 0.5s, box-shadow 0.5s;
+    }
+    .dark-theme .container {
+      background: rgba(40, 44, 52, 0.95);
+    }
+
+    /* Header / Title */
+    h1, h2, h3 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    /* Top images / banner */
+    .header-images {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .header-images img {
+      max-width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .hero-image {
+      width: 100%;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .hero-image img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Flex layout for form + visualization */
+    .flex-layout {
+      display: flex;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .flex-left {
+      flex: 2;
+    }
+    .flex-right {
+      flex: 1;
+      background: rgba(232, 240, 254, 0.6);
+      border-radius: 8px;
+      padding: 15px;
+      transition: background 0.5s;
+    }
+    .dark-theme .flex-right {
+      background: rgba(50, 50, 50, 0.8);
+    }
+
+    /* Theme toggle button */
+    .toggle-theme {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    button:focus {
+      outline: 2px solid #007bff;
+    }
+
+    /* Form styling */
+    form {
+      background: rgba(232, 240, 254, 0.95);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      transition: background 0.5s;
+    }
+    .dark-theme form {
+      background: rgba(50, 50, 50, 0.9);
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .question label {
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 1.05em;
+      display: block;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .options span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .options span input {
+      margin-right: 5px;
+    }
+
+    /* Error message styling */
+    .error {
+      color: red;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+
+    /* Results box */
+    .result {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .dark-theme .result {
+      background: #3c3c3c;
+      border-color: #555;
+    }
+    .result.show {
+      opacity: 1;
+    }
+
+    /* Summary or next steps */
+    .summary {
+      margin-top: 20px;
+      background: #e2e6ea;
+      border-radius: 8px;
+      padding: 20px;
+      transition: background 0.5s;
+    }
+    .dark-theme .summary {
+      background: #4f4f4f;
+    }
+
+    /* Condition detail table */
+    .condition-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    .condition-table th,
+    .condition-table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    .condition-table thead {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .dark-theme .condition-table thead {
+      background-color: #444;
+    }
+    .dark-theme .condition-table thead th {
+      color: #ff9b42;
+    }
+    .dark-theme .condition-table td {
+      color: #eee;
+    }
+
+    /* Score chart */
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+    .bar-label {
+      width: 40%;
+      font-weight: bold;
+    }
+    .bar {
+      height: 20px;
+      background-color: #007bff;
+      transition: width 0.5s;
+      border-radius: 4px;
+    }
+    .dark-theme .bar {
+      background-color: #ff9b42;
+    }
+    .bar-value {
+      margin-left: 8px;
+      font-size: 0.9em;
+      width: 30px;
+      text-align: right;
+    }
+
+    /* Hyperlink styling suitable for dark and light mode */
+    a {
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s;
+      font-weight: 600;
+    }
+    a:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+    .dark-theme a {
+      color: #ff9b42;
+    }
+    .dark-theme a:hover {
+      color: #ffbb70;
+    }
+
+    /* Responsive design */
+    @media (max-width: 800px) {
+      .flex-layout {
+        flex-direction: column;
+      }
+      .flex-right {
+        margin-top: 20px;
+      }
+    }
+    @media (max-width: 600px) {
+      .header-images {
+        flex-direction: column;
+      }
+      .hero-image img {
+        margin-top: 10px;
+      }
+      button {
+        width: 100%;
+        margin-top: 10px;
+      }
+      .options {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Dark theme toggle -->
+    <div class="toggle-theme">
+      <button id="themeToggle">Toggle Dark Theme</button>
+    </div>
+
+    <h1>Advanced Symptom Diagnostic Tool</h1>
+    <div class="header-images">
+      <!-- Replace with your own images or rename as appropriate -->
+      <img src="ht4.png" alt="Health UI 1">
+      <img src="ht2.png" alt="Health UI 2">
+      <img src="ht3.png" alt="Health UI 3">
+    </div>
+    <div class="hero-image">
+      <!-- Replace with your own image or rename as appropriate -->
+      <img src="medical_diagnostic_story.png" alt="Medical Diagnostic Illustration">
+    </div>
+
+    <p style="text-align:center; margin-top:20px;">
+      This tool helps differentiate between common causes of symptoms such as tiredness, brain fog, occasional sleepiness, and lightheadedness.  
+      We consider: <strong>Hashimoto’s</strong>, <strong>Vitamin B12 Deficiency</strong>, <strong>Iron Deficiency</strong>, 
+      <strong>Low Blood Pressure (Hypotension)</strong>, and <strong>Hypoglycemia</strong>.
+    </p>
+
+    <div class="flex-layout">
+      <!-- Left side: Form -->
+      <div class="flex-left">
+        <form id="diagnosticForm">
+          <!-- Error container -->
+          <div id="formError" class="error" style="display:none;"></div>
+
+          <!-- Q1: Symptom Timing -->
+          <div class="question">
+            <label>1. When do you most often experience these symptoms?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="timing" value="postMeal">
+                <label>Mostly after meals (sugary or carb-rich)</label>
+              </span>
+              <span>
+                <input type="radio" name="timing" value="consistent">
+                <label>Consistently throughout the day</label>
+              </span>
+              <span>
+                <input type="radio" name="timing" value="postural">
+                <label>When standing up or after activity</label>
+              </span>
+              <span>
+                <input type="radio" name="timing" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q2: Additional symptoms -->
+          <div class="question">
+            <label>2. Which additional symptoms do you have? (Select all that apply)</label>
+            <div class="options">
+              <span>
+                <input type="checkbox" name="additional" value="sweating">
+                <label>Sweating, shaking, or anxiety spells</label>
+              </span>
+              <span>
+                <input type="checkbox" name="additional" value="thyroidSigns">
+                <label>Weight gain, cold intolerance, or hair loss</label>
+              </span>
+              <span>
+                <input type="checkbox" name="additional" value="dizzyStanding">
+                <label>Dizziness when standing quickly</label>
+              </span>
+              <span>
+                <input type="checkbox" name="additional" value="picaBleeding">
+                <label>Cravings for non-food items or heavy periods</label>
+              </span>
+              <span>
+                <input type="checkbox" name="additional" value="tingling">
+                <label>Numbness, tingling, or memory issues</label>
+              </span>
+              <span>
+                <input type="checkbox" name="additional" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q3: Duration of symptoms -->
+          <div class="question">
+            <label>3. How long do your symptoms usually last?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="duration" value="short">
+                <label>They resolve quickly (within minutes to an hour)</label>
+              </span>
+              <span>
+                <input type="radio" name="duration" value="persistent">
+                <label>They persist for hours or the entire day</label>
+              </span>
+              <span>
+                <input type="radio" name="duration" value="variable">
+                <label>They vary (sometimes short, sometimes prolonged)</label>
+              </span>
+              <span>
+                <input type="radio" name="duration" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q4: Meal relation -->
+          <div class="question">
+            <label>4. Do you notice any relationship between your symptoms and meals?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="mealRelation" value="afterEating">
+                <label>Yes, especially after eating sugary meals</label>
+              </span>
+              <span>
+                <input type="radio" name="mealRelation" value="noRelation">
+                <label>No clear relation to meals</label>
+              </span>
+              <span>
+                <input type="radio" name="mealRelation" value="notSure">
+                <label>Not sure</label>
+              </span>
+              <span>
+                <input type="radio" name="mealRelation" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q5: Iron-specific -->
+          <div class="question">
+            <label>5. Have you experienced unusual cravings (like ice, dirt) or heavy menstrual bleeding?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="ironIndicator" value="yes">
+                <label>Yes</label>
+              </span>
+              <span>
+                <input type="radio" name="ironIndicator" value="no">
+                <label>No</label>
+              </span>
+              <span>
+                <input type="radio" name="ironIndicator" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q6: B12-specific -->
+          <div class="question">
+            <label>6. Do you have numbness, tingling, or memory/cognitive issues?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="vitaminIndicator" value="yes">
+                <label>Yes</label>
+              </span>
+              <span>
+                <input type="radio" name="vitaminIndicator" value="no">
+                <label>No</label>
+              </span>
+              <span>
+                <input type="radio" name="vitaminIndicator" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q7: Blood pressure related -->
+          <div class="question">
+            <label>7. Do you feel lightheaded specifically when you stand up or change posture?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="bpIndicator" value="yes">
+                <label>Yes, especially on standing</label>
+              </span>
+              <span>
+                <input type="radio" name="bpIndicator" value="no">
+                <label>No</label>
+              </span>
+              <span>
+                <input type="radio" name="bpIndicator" value="none">
+                <label>None of the above</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q8: How long has this been going on? -->
+          <div class="question">
+            <label>8. How long have you had these symptoms?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="durationTotal" value="less1month">
+                <label>Less than 1 month</label>
+              </span>
+              <span>
+                <input type="radio" name="durationTotal" value="1to3months">
+                <label>1 - 3 months</label>
+              </span>
+              <span>
+                <input type="radio" name="durationTotal" value="3to12months">
+                <label>3 - 12 months</label>
+              </span>
+              <span>
+                <input type="radio" name="durationTotal" value="more1year">
+                <label>More than 1 year</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- Q9: Frequency -->
+          <div class="question">
+            <label>9. How frequently do you experience these symptoms?</label>
+            <div class="options">
+              <span>
+                <input type="radio" name="frequency" value="daily">
+                <label>Daily</label>
+              </span>
+              <span>
+                <input type="radio" name="frequency" value="weekly">
+                <label>Weekly</label>
+              </span>
+              <span>
+                <input type="radio" name="frequency" value="occasional">
+                <label>Occasionally (once or twice a month)</label>
+              </span>
+              <span>
+                <input type="radio" name="frequency" value="rarely">
+                <label>Rarely</label>
+              </span>
+            </div>
+          </div>
+
+          <div style="text-align:center; margin-top:20px;">
+            <button type="submit">Submit Answers</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right side: Visualization Panel -->
+      <div class="flex-right" id="visualPanel">
+        <h3 style="text-align:center;">Score Distribution</h3>
+        <div id="chartContainer"></div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="result" style="display:none;"></div>
+
+    <!-- Summary or next steps -->
+    <div id="summary" class="summary" style="display:none;">
+      <h3>Next Steps & Suggestions</h3>
+      <p id="summaryContent"></p>
+      <div id="personalizedTable"></div>
+    </div>
+
+    <!-- Link to stats.html for additional features -->
+    <p style="text-align:center; margin-top:20px;">
+      <a href="stats.html" class="stats-link" target="_blank">
+        View Additional Statistics &amp; Interactive Tools
+      </a>
+    </p>
+  </div>
+
+  <script>
+    // Dark theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+    });
+
+    // Form handling
+    const form = document.getElementById('diagnosticForm');
+    const resultDiv = document.getElementById('result');
+    const summaryDiv = document.getElementById('summary');
+    const summaryContent = document.getElementById('summaryContent');
+    const formError = document.getElementById('formError');
+    const chartContainer = document.getElementById('chartContainer');
+    const personalizedTable = document.getElementById('personalizedTable');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Clear previous error
+      formError.style.display = 'none';
+      formError.innerText = '';
+
+      // Gather responses
+      const timing = getRadioValue('timing');
+      const additional = getCheckboxValues('additional');
+      const duration = getRadioValue('duration');
+      const mealRelation = getRadioValue('mealRelation');
+      const ironIndicator = getRadioValue('ironIndicator');
+      const vitaminIndicator = getRadioValue('vitaminIndicator');
+      const bpIndicator = getRadioValue('bpIndicator');
+      const durationTotal = getRadioValue('durationTotal');
+      const frequency = getRadioValue('frequency');
+
+      // Validate mandatory fields (for simplicity, just ensure each question is answered)
+      if (
+        !timing || !duration || !mealRelation || !ironIndicator ||
+        !vitaminIndicator || !bpIndicator || !durationTotal || !frequency
+      ) {
+        formError.style.display = 'block';
+        formError.innerText = 'Please answer all required questions before submitting.';
+        return;
+      }
+      // Additional is a checkbox group, no strict requirement for an answer
+
+      // Scoring for each condition
+      let scores = {
+        hashimoto: 0,
+        b12: 0,
+        iron: 0,
+        hypotension: 0,
+        hypoglycemia: 0
+      };
+
+      // Q1: Symptom Timing
+      if (timing === 'postMeal') {
+        scores.hypoglycemia += 2;
+      } else if (timing === 'consistent') {
+        scores.hashimoto += 1;
+        scores.iron += 1;
+        scores.b12 += 1;
+      } else if (timing === 'postural') {
+        scores.hypotension += 2;
+      }
+      // 'none' => no direct effect
+
+      // Q2: Additional symptoms
+      if (additional.includes('sweating')) {
+        scores.hypoglycemia += 2;
+      }
+      if (additional.includes('thyroidSigns')) {
+        scores.hashimoto += 2;
+      }
+      if (additional.includes('dizzyStanding')) {
+        scores.hypotension += 1;
+      }
+      if (additional.includes('picaBleeding')) {
+        scores.iron += 2;
+      }
+      if (additional.includes('tingling')) {
+        scores.b12 += 2;
+      }
+
+      // Q3: Duration
+      if (duration === 'short') {
+        scores.hypoglycemia += 1;
+      } else if (duration === 'persistent') {
+        scores.hashimoto += 1;
+        scores.iron += 1;
+        scores.b12 += 1;
+      }
+      // 'variable' or 'none' => no direct effect
+
+      // Q4: Meal relation
+      if (mealRelation === 'afterEating') {
+        scores.hypoglycemia += 2;
+      }
+
+      // Q5: Iron-specific
+      if (ironIndicator === 'yes') {
+        scores.iron += 3;
+      }
+
+      // Q6: B12-specific
+      if (vitaminIndicator === 'yes') {
+        scores.b12 += 3;
+      }
+
+      // Q7: Low BP indicator
+      if (bpIndicator === 'yes') {
+        scores.hypotension += 3;
+      }
+
+      // Q8 & Q9: Additional weighting
+      // If symptoms are very long-standing, Hashimoto or Iron might be slightly more likely
+      if (durationTotal === 'more1year') {
+        scores.hashimoto += 1;
+        scores.iron += 1;
+      }
+      // If daily => more chronic or more significant
+      if (frequency === 'daily') {
+        scores.hashimoto += 1;
+        scores.hypoglycemia += 1;
+        scores.hypotension += 1;
+      }
+
+      // Minor weighting adjustment for Hashimoto if it's known but "in range"
+      scores.hashimoto *= 0.9;
+
+      // Identify top scoring condition
+      let sortedConditions = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+      let mostLikely = sortedConditions[0];
+
+      // Build the result explanation
+      let explanation = `<h2>Results</h2>
+        <p><strong>Most Likely Diagnosis:</strong> ${formatCondition(mostLikely)}</p>`;
+
+      // If user’s inputs do NOT map to Hypoglycemia at all (score=0), mention that
+      if (scores.hypoglycemia === 0) {
+        explanation += `<p>Your responses do not match typical <strong>Hypoglycemia</strong> patterns. 
+          That suggests your symptoms align more with <strong>${formatCondition(mostLikely)}</strong>.</p>`;
+      }
+
+      // Provide reasons for elimination of other conditions
+      explanation += `<h3>Why Not the Others?</h3><ul>`;
+      let reasons = getEliminationReasons(mostLikely);
+      for (let cond in reasons) {
+        if (cond !== mostLikely) {
+          explanation += `<li><strong>${formatCondition(cond)}:</strong> ${reasons[cond]}</li>`;
+        }
+      }
+      explanation += `</ul>`;
+
+      // Show the result
+      resultDiv.innerHTML = explanation;
+      resultDiv.style.display = 'block';
+      setTimeout(() => resultDiv.classList.add('show'), 50);
+
+      // Show summary / suggestions
+      summaryContent.innerHTML = `
+        Based on your answers, focusing on <strong>${formatCondition(mostLikely)}</strong> might be most beneficial.
+        <br/><br/>
+        <strong>Suggested Next Steps:</strong>
+        <ul>
+          <li>Follow up with a healthcare provider for more targeted tests (e.g., labs for iron, B12, thyroid function, or glucose tolerance).</li>
+          <li>Keep a detailed symptom journal (timing, triggers, diet, posture, etc.).</li>
+          <li>Maintain a balanced diet, stay hydrated, and monitor any new or worsening symptoms.</li>
+        </ul>
+        <br/>
+        <em>Disclaimer: This tool is for informational purposes only and not a substitute for professional medical advice.</em>
+      `;
+      summaryDiv.style.display = 'block';
+
+      // Display a bar chart of scores
+      drawChart(scores);
+
+      // Display a personalized table for the final diagnosis
+      personalizedTable.innerHTML = generateConditionTable(mostLikely);
+    });
+
+    // Utility to get a single radio value
+    function getRadioValue(name) {
+      const radios = document.getElementsByName(name);
+      for (let r of radios) {
+        if (r.checked) return r.value;
+      }
+      return null;
+    }
+
+    // Utility to get multiple checkbox values
+    function getCheckboxValues(name) {
+      const checkboxes = document.getElementsByName(name);
+      let vals = [];
+      for (let c of checkboxes) {
+        if (c.checked) vals.push(c.value);
+      }
+      return vals;
+    }
+
+    // Format condition name
+    function formatCondition(cond) {
+      switch(cond) {
+        case 'hashimoto': return 'Hashimoto’s Thyroiditis';
+        case 'b12': return 'Vitamin B12 Deficiency';
+        case 'iron': return 'Iron Deficiency';
+        case 'hypotension': return 'Low Blood Pressure (Hypotension)';
+        case 'hypoglycemia': return 'Hypoglycemia';
+        default: return cond;
+      }
+    }
+
+    // Generate reasons for elimination
+    function getEliminationReasons(mostLikely) {
+      return {
+        hashimoto: "Significant weight gain, cold intolerance, or hair loss may not be your primary complaint, or your thyroid levels are well-managed.",
+        b12: "Neurological symptoms (tingling, numbness, memory issues) may not be the main driver if not scored highly.",
+        iron: "No strong anemia indicators (like pica or heavy menstrual bleeding) or labs pointing to iron deficiency if not selected.",
+        hypotension: "Not primarily related to posture changes or dizziness on standing if not scored highest.",
+        hypoglycemia: "Not strongly tied to post-meal sugar crashes or adrenergic symptoms if not indicated."
+      };
+    }
+
+    // Draw a simple bar chart of scores
+    function drawChart(scores) {
+      chartContainer.innerHTML = '';
+      const maxScore = Math.max(...Object.values(scores)) || 1;
+      for (let cond in scores) {
+        const barLine = document.createElement('div');
+        barLine.className = 'chart-bar';
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = formatCondition(cond);
+
+        const barWrapper = document.createElement('div');
+        barWrapper.style.flex = '1';
+        barWrapper.style.margin = '0 10px';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        const widthPercent = (scores[cond] / maxScore) * 100;
+        bar.style.width = widthPercent + '%';
+
+        const value = document.createElement('div');
+        value.className = 'bar-value';
+        value.textContent = scores[cond];
+
+        barWrapper.appendChild(bar);
+        barLine.appendChild(label);
+        barLine.appendChild(barWrapper);
+        barLine.appendChild(value);
+        chartContainer.appendChild(barLine);
+      }
+    }
+
+    // Generate a personalized table based on final diagnosis
+    function generateConditionTable(cond) {
+      // Sample data for each condition (customize as needed)
+      const data = {
+        hashimoto: {
+          what: "Autoimmune thyroid disorder causing chronic inflammation of the thyroid.",
+          why: "Body’s immune system attacks thyroid cells, affecting hormone production.",
+          prognosis: "Manageable with medication (levothyroxine) and regular monitoring.",
+          steps: "Check TSH, T3, T4 levels regularly; consult endocrinologist for dosage.",
+          recommendation: "Ensure adequate iodine intake, watch for hypothyroid/hyperthyroid swings.",
+          lifestyle: "Balanced diet, moderate exercise, stress management, possible selenium supplementation.",
+          expect: "With proper medication, symptoms can be well-controlled long-term."
+        },
+        b12: {
+          what: "Deficiency of vitamin B12 leading to potential neurological and hematological issues.",
+          why: "Often due to poor absorption (e.g., pernicious anemia) or insufficient dietary intake.",
+          prognosis: "Good with supplementation (oral or injections), but nerve damage can be slow to heal.",
+          steps: "Serum B12 test, possibly methylmalonic acid test; start supplementation if low.",
+          recommendation: "Increase dietary B12 (e.g., meats, dairy) or use supplements if vegetarian/vegan.",
+          lifestyle: "Regular check-ups to ensure levels remain adequate, watch for neurological changes.",
+          expect: "Symptoms (fatigue, tingling) often improve within weeks to months with correct treatment."
+        },
+        iron: {
+          what: "Low iron stores leading to anemia, reduced hemoglobin, and fatigue/dizziness.",
+          why: "Blood loss (e.g., heavy periods), poor dietary intake, or absorption issues.",
+          prognosis: "Improves with iron supplementation and addressing the cause of deficiency.",
+          steps: "Check ferritin, hemoglobin; possibly colon check for hidden bleeding if indicated.",
+          recommendation: "Increase dietary iron (red meat, leafy greens), consider vitamin C to enhance absorption.",
+          lifestyle: "Avoid tea/coffee with iron-rich meals, track menstrual flow, maintain balanced nutrition.",
+          expect: "Energy levels often rise after a few weeks of consistent iron therapy."
+        },
+        hypotension: {
+          what: "Abnormally low blood pressure, leading to dizziness or faintness, especially on standing.",
+          why: "Dehydration, low blood volume, autonomic issues, or medication side effects.",
+          prognosis: "Often manageable with lifestyle changes; must identify underlying cause if severe.",
+          steps: "Monitor blood pressure regularly; evaluate for orthostatic hypotension, salt intake.",
+          recommendation: "Stay hydrated, increase salt intake if recommended, slow posture changes.",
+          lifestyle: "Compression stockings, avoid prolonged standing, moderate exercise to improve circulation.",
+          expect: "Can improve significantly with careful management, though some causes are chronic."
+        },
+        hypoglycemia: {
+          what: "Low blood sugar episodes causing sweating, shaking, anxiety, confusion.",
+          why: "Excess insulin release (reactive hypoglycemia), poor meal timing, diabetes meds, or other conditions.",
+          prognosis: "Usually controllable by dietary adjustments and identifying triggers.",
+          steps: "Check fasting glucose, possibly a glucose tolerance test; track timing of episodes.",
+          recommendation: "Frequent small meals, balanced macros, avoid high-sugar spikes, carry quick sugar sources.",
+          lifestyle: "Regular exercise but with stable meal planning, stress management, limit alcohol.",
+          expect: "Episodes reduce greatly once dietary patterns and underlying causes are addressed."
+        }
+      };
+
+      const conditionInfo = data[cond];
+      if (!conditionInfo) return '';
+
+      return `
+        <table class="condition-table">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>Details for ${formatCondition(cond)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>What</td>
+              <td>${conditionInfo.what}</td>
+            </tr>
+            <tr>
+              <td>Why</td>
+              <td>${conditionInfo.why}</td>
+            </tr>
+            <tr>
+              <td>Prognosis</td>
+              <td>${conditionInfo.prognosis}</td>
+            </tr>
+            <tr>
+              <td>Steps to Take</td>
+              <td>${conditionInfo.steps}</td>
+            </tr>
+            <tr>
+              <td>Recommendation</td>
+              <td>${conditionInfo.recommendation}</td>
+            </tr>
+            <tr>
+              <td>Life Changes</td>
+              <td>${conditionInfo.lifestyle}</td>
+            </tr>
+            <tr>
+              <td>What to Expect</td>
+              <td>${conditionInfo.expect}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+  </script>
+</body>
+</html>
