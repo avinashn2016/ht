@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - Advanced Symptom Diagnostic Tool</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* GLOBAL STYLES */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+    img {
+      max-width: 100%;
+      display: block;
+      border-radius: 8px;
+    }
+    h1, h2, h3 {
+      margin: 0;
+      font-weight: 700;
+      color: #007bff;
+    }
+    p {
+      margin: 0 0 1em;
+      line-height: 1.6;
+    }
+    a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style-position: inside;
+    }
+    li {
+      margin-bottom: 0.5em;
+    }
+
+    /* HEADER / NAVIGATION */
+    header {
+      background: #007bff;
+      color: #fff;
+      padding: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    nav ul {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      color: #fff;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #cce4ff;
+    }
+    nav ul li a.active {
+      border-bottom: 2px solid #fff;
+      padding-bottom: 2px;
+    }
+    .page-title {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+
+    /* INTRODUCTION */
+    .intro-text {
+      font-size: 1rem;
+      margin-bottom: 1.5em;
+    }
+
+    /* FLOW OF THE APPLICATION */
+    .flow-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    .flow-step {
+      flex: 1 1 250px;
+      min-width: 250px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .flow-step:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .flow-step img {
+      margin-bottom: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .flow-step h3 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+
+    /* MISSION & VISION */
+    .mission-vision {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    .card {
+      flex: 1 1 300px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+
+    /* USE CASES */
+    .use-cases ul {
+      list-style: inside square;
+      margin-left: 20px;
+      padding-left: 0;
+    }
+
+    /* CONTACT */
+    .contact {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .contact a {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .mission-vision {
+        flex-direction: column;
+      }
+      .flow-container {
+        flex-direction: column;
+      }
+      .flow-step {
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER & NAVIGATION -->
+  <header>
+    <nav>
+      <div class="logo">Advanced Symptom Diagnostic Tool</div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="aboutus.html" class="active">About Us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- PAGE TITLE -->
+  <div class="page-title">
+    <h1>About Us</h1>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- WHO WE ARE -->
+    <section>
+      <h2>Who We Are</h2>
+      <p class="intro-text">
+        We are a team of passionate healthcare professionals, data scientists,
+        and technology enthusiasts dedicated to transforming healthcare through
+        innovative digital solutions. Our <strong>Advanced Symptom Diagnostic Tool</strong> 
+        empowers individuals with accessible, interactive, and accurate insights into their health.
+      </p>
+      <p class="intro-text">
+        By leveraging the power of data analytics and user-friendly design,
+        we help users make informed decisions and collaborate more effectively
+        with healthcare providers. Our ultimate goal is to bridge the gap
+        between self-care and professional medical guidance.
+      </p>
+    </section>
+
+    <!-- FLOW OF THE APPLICATION -->
+    <section>
+      <h2>Flow of the Application</h2>
+      <p>
+        Our tool seamlessly guides you through each stage of symptom evaluation:
+      </p>
+
+      <div class="flow-container">
+        <!-- Step 1 -->
+        <div class="flow-step">
+          <img src="health1.png" alt="Diagnose Step" />
+          <h3>Diagnose</h3>
+          <p>
+            Begin by answering a short questionnaire about your symptoms, providing the foundation for our initial analysis.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="flow-step">
+          <img src="health2.png" alt="Understand Symptoms Step" />
+          <h3>Understand Your Symptoms</h3>
+          <p>
+            Explore personalized results and visualize data in our
+            <em>Health Insights</em> and <em>Detailed Crash Analysis</em> pages.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="flow-step">
+          <img src="health3.png" alt="Learn About Triggers Step" />
+          <h3>Learn About Triggers</h3>
+          <p>
+            Dive deeper into each potential condition with
+            comprehensive resources, guidance, and tips.
+          </p>
+        </div>
+      </div>
+
+      <p>
+        <strong>Get Expert Insights &amp; Take Action:</strong> 
+        Use our suggestions to decide on potential next steps, such as contacting healthcare 
+        professionals or scheduling recommended tests.
+      </p>
+
+      <!-- NEWLY ADDED IMAGE (health.png) -->
+      <div style="text-align: center; margin-top: 30px;">
+        <img 
+          src="health.png" 
+          alt="Application Flow Diagram" 
+          style="width: 80%; max-width: 900px; height: auto;"
+        />
+      </div>
+    </section>
+
+    <!-- MISSION & VISION -->
+    <section class="mission-vision">
+      <div class="card">
+        <h3>Our Mission</h3>
+        <p>
+          To empower individuals with intuitive diagnostic tools that promote 
+          proactive health management and foster a deeper understanding of well-being.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Our Vision</h3>
+        <p>
+          We envision a future where everyone has the knowledge and confidence
+          to make informed decisions about their health, bridging the gap
+          between self-care and professional healthcare.
+        </p>
+      </div>
+    </section>
+
+    <!-- USE CASES -->
+    <section class="use-cases">
+      <h2>Use Cases</h2>
+      <ul>
+        <li><strong>Early Detection:</strong> Quickly check possible causes of recurring fatigue or dizziness.</li>
+        <li><strong>Self-Education:</strong> Gain insights on conditions like Hashimoto’s, B12 deficiency, or low blood pressure.</li>
+        <li><strong>Monitoring Progress:</strong> Track how symptoms evolve over time, especially before and after lifestyle changes.</li>
+        <li><strong>Health Professionals:</strong> Serve as a supplementary triage tool, saving time on initial patient screening.</li>
+      </ul>
+    </section>
+
+    <!-- CONTACT INFORMATION -->
+    <section class="contact">
+      <h2>Contact Us</h2>
+      <p>
+        For questions, collaborations, or feedback, please reach out to:
+        <br>
+        <strong>Avinash Naganathan</strong> at 
+        <a href="mailto:avinash.naganathan@gmail.com">avinash.naganathan@gmail.com</a>
+      </p>
+      <p>
+        Or schedule a meeting on our calendar:
+        <br>
+        <a href="https://calendar.google.com/" target="_blank">Book a Time Slot</a>
+      </p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2025 Advanced Symptom Diagnostic Tool. All rights reserved.
+  </footer>
+</body>
+</html>

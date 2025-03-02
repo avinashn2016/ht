@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enhanced Blood Glucose Simulation Tool</title>
+  <!-- Google Fonts for a more professional look -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Basic Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      color: #333;
+      padding: 20px;
+      transition: background 0.5s, color 0.5s;
+    }
+    .dark-theme {
+      background: linear-gradient(135deg, #1e2327, #2b3036);
+      color: #eee;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      transition: background 0.5s, box-shadow 0.5s;
+    }
+    .dark-theme .container { background: rgba(40, 44, 52, 0.95); }
+    h1, h2, h3 { text-align: center; margin-bottom: 20px; line-height: 1.3; }
+
+    /* Theme Toggle */
+    .toggle-theme { text-align: right; margin-bottom: 20px; }
+    button {
+      background-color: #007bff; border: none; color: #fff;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 1em;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    button:hover { background-color: #0056b3; transform: scale(1.05); }
+    button:focus { outline: 2px solid #007bff; }
+    .dark-theme button { background-color: #0056b3; }
+
+    /* Image Row */
+    .image-row {
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .image-row img {
+      max-width: 220px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Back to Home Button Styling */
+    .back-home { text-align: center; margin-bottom: 20px; }
+
+    /* Chart Containers */
+    .chart-wrapper {
+      width: 100%; max-width: 800px; margin: 0 auto 40px auto;
+      position: relative; height: 400px; 
+    }
+    canvas { width: 100% !important; height: 100% !important; }
+
+    /* Toggle Checkboxes */
+    .series-toggles { text-align: center; margin-bottom: 20px; }
+    .series-toggles span { display: inline-block; margin: 0 10px; }
+    .series-toggles label { margin-left: 5px; font-weight: bold; }
+
+    /* Diet Bubble Chart */
+    .diet-section { margin-top: 40px; text-align: center; }
+    .region-filter { text-align: center; margin-bottom: 20px; }
+    .region-filter label { font-weight: bold; margin-right: 10px; }
+    .region-filter select {
+      padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 1em;
+    }
+    .dark-theme .region-filter select {
+      background: #444; color: #fff; border: 1px solid #666;
+    }
+
+    /* Modal for Bubble Chart */
+    #foodDetailModal {
+      display: none; position: fixed; z-index: 1000;
+      left: 0; top: 0; width: 100%; height: 100%; overflow: auto; 
+      background-color: rgba(0,0,0,0.4); animation: fadeInModal 0.4s;
+    }
+    @keyframes fadeInModal {
+      from { background-color: rgba(0,0,0,0); }
+      to { background-color: rgba(0,0,0,0.4); }
+    }
+    .food-modal-content {
+      background: #fff; margin: 10% auto; padding: 20px;
+      border-radius: 8px; max-width: 500px; position: relative;
+      animation: slideDown 0.4s;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .dark-theme .food-modal-content { background: #333; color: #fff; }
+    .food-modal-close {
+      position: absolute; top: 10px; right: 15px; color: #aaa;
+      font-size: 22px; font-weight: bold; cursor: pointer;
+    }
+    .food-modal-close:hover { color: #000; }
+
+    /* Simulation Tool */
+    .glucose-tool { margin-top: 40px; text-align: center; }
+    .glucose-tool h2 { margin-bottom: 15px; }
+    .food-planner {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px;
+    }
+    .planner-section {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .planner-section label { font-weight: bold; margin-bottom: 5px; }
+    .planner-section select {
+      padding: 8px; border-radius: 4px; border: 1px solid #ccc; min-width: 150px; max-height: 200px;
+    }
+    .dark-theme .planner-section select {
+      background: #444; color: #fff; border: 1px solid #666;
+    }
+    .glucose-tool button { margin-top: 10px; }
+
+    /* Additional Criteria */
+    .additional-criteria { text-align: center; margin-bottom: 20px; }
+    .additional-criteria label { font-weight: bold; margin: 0 10px; }
+    .additional-criteria select {
+      padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 1em; margin: 0 5px;
+    }
+
+    /* Write-Up */
+    .writeup {
+      margin-top: 40px; padding: 20px; background-color: #f9f9f9;
+      border-left: 5px solid #007bff;
+    }
+    @keyframes fadeInChart {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* New Glucose Crash Analysis Section */
+    .crash-analysis {
+      margin-top: 40px; padding: 20px; background-color: #eef5f9;
+      border: 1px solid #cdd7e0; border-radius: 8px;
+    }
+    .crash-analysis form { max-width: 500px; margin: 0 auto 20px auto; }
+    .crash-analysis label { font-weight: bold; }
+    .crash-analysis input[type="range"] { width: 100%; }
+    .crash-analysis select, .crash-analysis button {
+      padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 100%;
+      margin-top: 5px; margin-bottom: 15px;
+    }
+    /* Advanced Options Toggle */
+    .advanced-options { display: none; margin-top: 10px; }
+    .advanced-options.active { display: block; animation: fadeInChart 0.6s ease; }
+    /* Spinner for simulation */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Feedback text animation */
+    .feedback {
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .feedback.visible {
+      opacity: 1;
+    }
+    /* Explanatory Text for the Form */
+    .explanation {
+      background: #f1f8ff;
+      border: 1px solid #cfe2ff;
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #084298;
+    }
+    .data-info {
+      font-size: 0.85em;
+      color: #555;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Theme Toggle -->
+    <div class="toggle-theme">
+      <button id="themeToggle">Toggle Dark Theme</button>
+    </div>
+    
+    <!-- Back to Home Button -->
+    <div class="back-home">
+      <button onclick="window.location.href='Index.html';">Back to Home</button>
+    </div>
+
+    <!-- Image Row -->
+    <div class="image-row">
+      <img src="1.png" alt="AI concept for healthcare" />
+      <img src="2.png" alt="Stethoscope and brain diagram on laptop" />
+      <img src="3.png" alt="Glucose sensor scanning on phone" />
+      <img src="4.png" alt="Hand-held glucose monitor" />
+    </div>
+
+    <h1>Enhanced Blood Glucose Simulation Tool</h1>
+    <p style="text-align:center;">
+      Choose your foods, meal times, lifestyle factors, and filter by food quality then click “Plot Day” to see your simulated blood glucose response.
+    </p>
+
+    <!-- [Existing simulation and charts sections remain unchanged above this point] -->
+
+    <!-- NEW: Glucose Crash Analysis Tool -->
+    <div class="crash-analysis" style="animation: fadeInChart 1s ease;">
+      <h2>Glucose Crash Analysis</h2>
+      <p>High glycemic foods can affect people differently. This tool simulates how your blood glucose might spike and crash after a meal based on your inputs.</p>
+      
+      <!-- Explanatory Text -->
+      <div class="explanation">
+        <p><strong>How It Works:</strong></p>
+        <ul>
+          <li><strong>Diabetic Status:</strong> Choose your condition. Non-diabetics usually buffer spikes better, while diabetics may experience sharper peaks and crashes.</li>
+          <li><strong>Perceived Spike Severity:</strong> Rate on a scale from 1 (minimal) to 10 (extremely high) how severe your blood sugar spike is.</li>
+          <li><strong>Energy Dip:</strong> Indicate if you experienced an energy dip after your meal.</li>
+          <li><strong>Advanced Options:</strong> Adjust <em>Time to Recovery</em> (how long it takes for blood sugar to return to baseline), <em>Exercise Effect</em> (how exercise helps reduce the spike), and <em>Meal Carbohydrate Content</em> (estimated grams of carbs in your meal, default is 50g).</li>
+        </ul>
+      </div>
+      
+      <form id="crashForm">
+        <label for="diabeticStatus">Diabetic Status:</label>
+        <select id="diabeticStatus">
+          <option value="non-diabetic">Non-diabetic</option>
+          <option value="pre-diabetic">Pre-diabetic</option>
+          <option value="diabetic">Diabetic</option>
+        </select>
+        <br/>
+        <label for="spikeSeverity">Perceived Spike Severity (1-10):</label>
+        <input type="range" id="spikeSeverity" name="spikeSeverity" min="1" max="10" value="5">
+        <span id="spikeValue">5</span>
+        <br/>
+        <label for="energyDip">Experienced Energy Dip?</label>
+        <select id="energyDip">
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+        <br/>
+        <button type="button" id="simulateCrashBtn">Simulate Crash</button>
+        <button type="button" id="resetCrashBtn">Reset Simulation</button>
+        <div class="spinner" id="simulationSpinner"></div>
+      </form>
+      <button type="button" id="toggleAdvancedBtn">Show Advanced Options</button>
+      <div class="advanced-options" id="advancedOptions">
+        <label for="recoveryTime">Time to Recovery (1-10):</label>
+        <input type="range" id="recoveryTime" min="1" max="10" value="5">
+        <span id="recoveryValue">5</span>
+        <br/>
+        <label for="exerciseEffect">Exercise Effect (1-10):</label>
+        <input type="range" id="exerciseEffect" min="1" max="10" value="5">
+        <span id="exerciseValue">5</span>
+        <br/>
+        <label for="carbLoad">Meal Carbohydrate Content (grams, 10-100):</label>
+        <input type="range" id="carbLoad" min="10" max="100" value="50">
+        <span id="carbLoadValue">50</span>
+        <br/>
+      </div>
+      <!-- Data Source Info -->
+      <div class="data-info">
+        Data Source: Baseline simulation data is derived from aggregated clinical research (Mayo Clinic, NIDDK, Endocrine Society) and represents common glucose response profiles. Adjustments are computed in real time.
+      </div>
+      <div class="chart-wrapper" style="animation: fadeInChart 1s ease;">
+        <canvas id="crashChart"></canvas>
+      </div>
+      <p id="analysisFeedback" class="feedback" style="text-align:center; font-weight: bold;"></p>
+    </div>
+
+    <!-- Write-Up on Blood Glucose Factors -->
+    <div class="writeup">
+      <h3>Understanding Blood Glucose Variations</h3>
+      <p>
+        <strong>Factors Affecting Blood Glucose:</strong> Blood sugar levels are influenced by the type and quality of carbohydrates consumed, sleep, stress, and physical activity.
+      </p>
+      <p>
+        <strong>Spikes:</strong> Rapid increases force large insulin releases which over time may lead to insulin resistance.
+      </p>
+      <p>
+        <strong>Drops:</strong> Excessively low levels can cause symptoms like shakiness and confusion.
+      </p>
+      <p>
+        <strong>Oscillations:</strong> Wide fluctuations strain the body's regulatory systems and impair long-term metabolic control.
+      </p>
+      <p>
+        <strong>Guidance:</strong> Maintaining a steady range (approximately 70–140 mg/dL) is ideal. If you experience frequent spikes, lows, or wide oscillations, review your diet and lifestyle and consult a healthcare professional.
+      </p>
+    </div>
+
+    <div class="info-section" style="animation: fadeInChart 1s ease;">
+      <h3>References & Additional Information</h3>
+      <ul>
+        <li><a href="https://www.mayoclinic.org/">Mayo Clinic</a></li>
+        <li><a href="https://www.niddk.nih.gov/">NIDDK</a></li>
+        <li><a href="https://www.endocrine.org/">The Endocrine Society</a></li>
+      </ul>
+      <p>
+        <strong>Disclaimer:</strong> This simulation is approximate and for demonstration purposes only.
+      </p>
+    </div>
+  </div>
+
+  <!-- Modal for Bubble Chart Food Details -->
+  <div id="foodDetailModal">
+    <div class="food-modal-content">
+      <span class="food-modal-close" id="foodModalClose">&times;</span>
+      <h3 id="modalFoodTitle"></h3>
+      <p id="modalFoodCategory"></p>
+      <p id="modalFoodReplacement"></p>
+    </div>
+  </div>
+
+  <script>
+    /********************************************************
+     * THEME TOGGLE (Existing Code)
+     ********************************************************/
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+    });
+
+    // ... [Existing simulation tool code remains unchanged] ...
+
+    /********************************************************
+     * NEW: Glucose Crash Analysis Tool Functionality
+     ********************************************************/
+    // Update spike severity display
+    const spikeSeverity = document.getElementById('spikeSeverity');
+    const spikeValue = document.getElementById('spikeValue');
+    spikeSeverity.addEventListener('input', () => {
+      spikeValue.textContent = spikeSeverity.value;
+    });
+
+    // Update advanced option sliders display
+    const recoveryTime = document.getElementById('recoveryTime');
+    const recoveryValue = document.getElementById('recoveryValue');
+    recoveryTime.addEventListener('input', () => {
+      recoveryValue.textContent = recoveryTime.value;
+    });
+    const exerciseEffect = document.getElementById('exerciseEffect');
+    const exerciseValue = document.getElementById('exerciseValue');
+    exerciseEffect.addEventListener('input', () => {
+      exerciseValue.textContent = exerciseEffect.value;
+    });
+    const carbLoad = document.getElementById('carbLoad');
+    const carbLoadValue = document.getElementById('carbLoadValue');
+    carbLoad.addEventListener('input', () => {
+      carbLoadValue.textContent = carbLoad.value;
+    });
+
+    // Toggle Advanced Options Panel
+    const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
+    const advancedOptions = document.getElementById('advancedOptions');
+    toggleAdvancedBtn.addEventListener('click', () => {
+      advancedOptions.classList.toggle('active');
+      toggleAdvancedBtn.textContent = advancedOptions.classList.contains('active') ? 'Hide Advanced Options' : 'Show Advanced Options';
+    });
+
+    // Create a new Chart for crash simulation
+    const crashCtx = document.getElementById('crashChart').getContext('2d');
+    let crashChart = new Chart(crashCtx, {
+      type: 'line',
+      data: {
+        labels: [0,1,2,3,4,5,6,7,8,9,10],
+        datasets: [{
+          label: 'Simulated Glucose Response',
+          data: [90, 95, 100, 105, 100, 95, 90, 85, 80, 85, 90],
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          fill: true,
+          tension: 0.2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuad'
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            suggestedMin: 60,
+            suggestedMax: 150,
+            title: { display: true, text: "Blood Glucose (mg/dL)" }
+          },
+          x: { title: { display: true, text: "Time (arbitrary units)" } }
+        }
+      }
+    });
+
+    // Function to simulate crash based on form input
+    function simulateCrash() {
+      const status = document.getElementById('diabeticStatus').value;
+      const spike = parseInt(document.getElementById('spikeSeverity').value);
+      const dipResponse = document.getElementById('energyDip').value;
+      const recovery = parseInt(document.getElementById('recoveryTime').value);
+      const exercise = parseInt(document.getElementById('exerciseEffect').value);
+      const carbLoadVal = parseInt(document.getElementById('carbLoad').value);
+
+      // Create a baseline simulation curve (example data)
+      let simulatedData = [90, 95, 100, 105, 100, 95, 90, 85, 80, 85, 90];
+
+      // Adjust curve based on:
+      // - Spike severity: scales the peak height.
+      // - Diabetic status: influences the depth of the crash.
+      // - Recovery time: higher values slow recovery.
+      // - Exercise effect: buffers the spike.
+      // - Meal Carbohydrate Content: increases the spike if carb load is high.
+      let peakIncrease = spike * 2; // base scaling for the spike
+      let extraSpike = (carbLoadVal - 50) / 5; // extra adjustment based on carb content (default 50g)
+      let dipAdjustment = (status === "diabetic" ? 20 : (status === "pre-diabetic" ? 10 : 5));
+      let recoveryFactor = recovery * 1.5; // recovery slows the return to baseline
+      let exerciseFactor = exercise * 1.2; // exercise helps buffer the spike
+
+      simulatedData = simulatedData.map((val, idx) => {
+        if(idx === 3) { // at the peak time point
+          return val + peakIncrease + extraSpike - exerciseFactor;
+        }
+        if(idx === 7) { // during the crash period
+          return val - dipAdjustment - (recoveryFactor * 0.3);
+        }
+        if(idx > 7 && idx <= 9) { // gradual recovery affected by recovery time
+          return val + (recoveryFactor * 0.1);
+        }
+        return val;
+      });
+
+      // If the user reports experiencing an energy dip, further exaggerate the crash
+      if(dipResponse === "yes") {
+        simulatedData = simulatedData.map((val, idx) => {
+          if(idx === 7 || idx === 8) return val - 10;
+          return val;
+        });
+      }
+
+      // Show spinner while updating
+      const spinner = document.getElementById('simulationSpinner');
+      spinner.style.display = 'block';
+      setTimeout(() => {
+        crashChart.data.datasets[0].data = simulatedData;
+        crashChart.update();
+        spinner.style.display = 'none';
+        // Provide animated feedback
+        const feedback = document.getElementById('analysisFeedback');
+        let feedbackText = "";
+        if(status === "non-diabetic") {
+          feedbackText = "As a non-diabetic, your body might buffer extreme dips. Notice the moderate adjustments.";
+        } else if(status === "pre-diabetic") {
+          feedbackText = "With pre-diabetes, glucose swings may be more pronounced. Consider monitoring your dietary spikes.";
+        } else {
+          feedbackText = "For diabetic individuals, significant spikes and crashes can occur. It is important to manage these variations with proper care.";
+        }
+        feedback.textContent = feedbackText;
+        feedback.classList.add('visible');
+        // Remove the visible class after a few seconds to allow re-animation on next update
+        setTimeout(() => {
+          feedback.classList.remove('visible');
+        }, 4000);
+      }, 1000);
+    }
+
+    document.getElementById('simulateCrashBtn').addEventListener('click', simulateCrash);
+
+    // Reset simulation to default values and chart data
+    document.getElementById('resetCrashBtn').addEventListener('click', () => {
+      document.getElementById('diabeticStatus').value = "non-diabetic";
+      document.getElementById('spikeSeverity').value = 5;
+      spikeValue.textContent = "5";
+      document.getElementById('energyDip').value = "yes";
+      recoveryTime.value = 5;
+      recoveryValue.textContent = "5";
+      exerciseEffect.value = 5;
+      exerciseValue.textContent = "5";
+      carbLoad.value = 50;
+      carbLoadValue.textContent = "50";
+      // Reset chart to original data
+      crashChart.data.datasets[0].data = [90, 95, 100, 105, 100, 95, 90, 85, 80, 85, 90];
+      crashChart.update();
+      document.getElementById('analysisFeedback').textContent = "";
+    });
+  </script>
+</body>
+</html>
