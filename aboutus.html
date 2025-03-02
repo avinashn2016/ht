@@ -194,12 +194,119 @@
       color: #007bff;
     }
 
+    /* COMING SOON SECTIONS */
+    .coming-soon-section,
+    .ios-app-section {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .coming-soon-section img,
+    .ios-app-section img {
+      max-width: 300px;
+      margin: 20px auto;
+    }
+    .coming-soon-section p,
+    .ios-app-section p {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
     /* FOOTER */
     footer {
       text-align: center;
       padding: 20px;
       font-size: 0.9em;
       color: #666;
+    }
+
+    /* POPUP & BLUR STYLES */
+    .blurred *:not(.popup-modal, .popup-modal *) {
+      filter: blur(5px);
+      pointer-events: none;
+    }
+    .popup-modal {
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      background-color: rgba(0,0,0,0.5);
+      transition: opacity 0.4s ease-in-out;
+    }
+    .popup-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .popup-content {
+      background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);
+      margin: 10% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      transform-style: preserve-3d;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.335, 1.05);
+    }
+    @keyframes popIn {
+      0% {
+        transform: perspective(1000px) rotateY(-10deg) scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: perspective(1000px) rotateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #999;
+    }
+    .close-btn:hover {
+      color: #333;
+    }
+    .popup-content ul {
+      text-align: left;
+      margin: 1em auto;
+      display: inline-block;
+    }
+    .login-btn,
+    .signup-btn {
+      margin: 0.5em;
+      padding: 0.8em 1.2em;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+    }
+    .login-btn {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .login-btn:hover {
+      background-color: #0056b3;
+    }
+    .signup-btn {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .signup-btn img {
+      vertical-align: middle;
+      margin-left: 8px;
+      height: 1em;
+    }
+    .signup-btn:hover {
+      background-color: #b52b37;
     }
 
     /* RESPONSIVE */
@@ -355,11 +462,81 @@
         <a href="https://calendar.google.com/" target="_blank">Book a Time Slot</a>
       </p>
     </section>
+
+    <!-- COMING SOON: INTEGRATION PARTNERS -->
+    <section class="coming-soon-section">
+      <h2>Integration Partners (Coming Soon)</h2>
+      <img src="integrationp.png" alt="Integration Partners" />
+      <p>
+        We’re actively working to integrate with leading medical device providers 
+        like Dexcom, Abbott, Medtronic, Freestyle Libre, and more. By connecting 
+        directly to these devices, you’ll have real-time insights into your health metrics, 
+        helping you and your healthcare providers make data-driven decisions more efficiently.
+      </p>
+    </section>
+
+    <!-- COMING SOON: iOS APP -->
+    <section class="ios-app-section">
+      <h2>Our iOS App (Coming Soon)</h2>
+      <img src="appios.png" alt="iOS App Coming Soon" />
+      <p>
+        Soon, you’ll be able to download our dedicated iOS app for seamless on-the-go access. 
+        From real-time notifications to easy symptom logging, our app will bring 
+        the full power of our diagnostic tool to your fingertips.
+      </p>
+    </section>
   </main>
 
   <!-- FOOTER -->
   <footer>
     &copy; 2025 Advanced Symptom Diagnostic Tool. All rights reserved.
   </footer>
+
+  <!-- POPUP MODAL FOR LOGIN/SIGNUP -->
+  <div class="popup-modal" id="login-popup">
+    <div class="popup-content">
+      <span class="close-btn" id="close-popup">&times;</span>
+      <h2>Access Our Platform</h2>
+      <p style="margin-bottom: 1em;">
+        Sign in or create an account to unlock advanced analytics, personalized insights,
+        real-time device integration, and much more.
+      </p>
+      <ul>
+        <li>Deeper insights into your health data</li>
+        <li>Comprehensive symptom monitoring</li>
+        <li>Secure integration with top medical devices</li>
+        <li>Expert recommendations and analytics</li>
+      </ul>
+      <p style="margin-top: 1.5em;">Choose an option below to continue:</p>
+      <button class="login-btn">Login</button>
+      <button class="signup-btn">
+        Sign Up with Google
+        <img src="gsso.png" alt="Google SSO" />
+      </button>
+    </div>
+  </div>
+
+  <!-- INLINE SCRIPT FOR BLUR AND POPUP -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      let hasBlurred = false;
+      window.addEventListener("scroll", function() {
+        // Trigger near the bottom of the page
+        if (!hasBlurred && (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 200)) {
+          hasBlurred = true;
+          // Blur the page
+          document.body.classList.add("blurred");
+          // Show the popup with .show class (for animation/transition)
+          document.getElementById("login-popup").classList.add("show");
+        }
+      });
+
+      // Close the popup
+      document.getElementById("close-popup").addEventListener("click", function() {
+        document.getElementById("login-popup").classList.remove("show");
+        document.body.classList.remove("blurred");
+      });
+    });
+  </script>
 </body>
 </html>
